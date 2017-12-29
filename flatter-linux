@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# create image: ~/ qemu-img create -f qcow2 flatter-linux.img 8G
+# enable kvm: ~/ sudo modprobe kvm-intel
+# enable net: ~/ sudo modprobe tun
+
+if [ $# -ne 1 ]; then
+	echo "Usage: $(basename $0) <iso>"
+	exit 1
+fi
+
+cpus=0
+while read line; do
+	case $line in
+	processor*:*[0-9]) cpus=$((cpus + 1));;
+	esac
+done < /proc/cpuinfo
+
+sudo qemu-system-x86_64-gtk -cpu host \
+ -netdev user,id=net0,hostfwd=tcp::4444-:5555 \
+ -device e1000,netdev=net0,mac=52:54:00:12:34:56 \
+ -smp $cpus \
+ -usb \
+ -device usb-mouse \
+ -device usb-kbd \
+ -enable-kvm \
+ -vga std \
+ -m 512 \
+ -cdrom $1
