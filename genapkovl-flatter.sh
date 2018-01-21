@@ -289,7 +289,7 @@ bsm-simple-themes
 rxvt-unicode
 dbus
 pcmanfm
-viewnior
+gpicview
 fwm
 vim
 sudo
