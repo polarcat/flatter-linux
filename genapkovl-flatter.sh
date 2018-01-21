@@ -92,10 +92,16 @@ mount \$modules /.modules
 
 rm -fr /etc/*
 cp -ra /.flatter/etc/* /etc/
+sed -i 's/exec xterm/exec urxvt/' /etc/fwm/.fwm/keys/mod_t
 sed -i 's/exec xterm/exec urxvt/g' /etc/fwm/.fwm/bin/main-menu
 cp /etc/fwm/.fwm/bin/main-menu /etc/fwm/.fwm/panel/menu
 
 adduser -D -s /bin/sh -k /etc/fwm -G fwm fwm
+
+for group in input video audio cdrom readproc; do
+	addgroup fwm \$group
+done
+
 passwd -d fwm >/dev/null 2>&1
 echo "PATH=\$PATH:/home/fwm/bin" >> /home/fwm/.profile
 mv /home/fwm/.xinitrc-fwm /home/fwm/.xinitrc
