@@ -60,11 +60,35 @@ cat > $tmp/sbin/init << EOF
 
 printf "   \033[1;30mFlatter Linux\033[0m $(date)\n"
 
+media=''
+while read dev mount type rest; do
+	case \$mount in
+	/media/*)
+		case \$type in
+		iso9660) media=\$mount; break;;
+		esac
+		;;
+        esac
+done < /proc/mounts
+
+flatter=\$media/flatter-linux.img
+
+if [ ! -f \$flatter ]; then
+	printf "\033[1;31mFATAL\033[0m \$flatter does not exist\n"
+	exec /bin/busybox init
+fi
+
 mkdir -p /.flatter
-mount /media/cdrom/flatter-linux.img /.flatter
+mount \$flatter /.flatter
+
+modules=\$media/boot/modloop-hardened
+
+if [ ! -f \$modules ]; then
+	printf "\033[0;31mWARNING\033[0m \$modules does not exist\n"
+fi
 
 mkdir -p /.modules
-mount /media/cdrom/boot/modloop-hardened /.modules
+mount \$modules /.modules
 
 rm -fr /etc/*
 cp -ra /.flatter/etc/* /etc/
