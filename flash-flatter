@@ -1,0 +1,25 @@
+#!/bin/sh
+
+if [ $# -lt 1 ]; then
+	echo "Usage: $(basename $0) <iso>"
+	exit 1
+fi
+
+for link in /dev/disk/by-id/*; do
+	case "$link" in
+	*dev*disk*by-id*usb-*-part[0-9]*) continue;;
+	*dev*disk*by-id*usb-*)
+		disk=$(readlink -f "$link")
+		printf "Found \033[0;32m$link\033[0m --> $disk\n\n"
+		printf "\033[1;32m$disk\033[0m: \033[1;31mall data will be lost !!!\033[0m\n\n"
+		printf "Continue? [y/\033[0;32mN\033[0m] "
+		read s
+		case "$s" in
+		Y|y|yes|Yes|YES)
+			echo sudo dd if="$@" of="$disk" bs=64K
+			sudo dd if="$@" of="$disk" bs=64K
+			;;
+		esac
+		;;
+	esac
+done
