@@ -1,0 +1,20 @@
+#!/bin/sh
+
+cfg=/etc/wpa_supplicant/wpa_supplicant.conf
+
+while read line; do
+	case $line in
+	ctrl_interface*) exit 0;; # ok, we can use wpa_cli
+	network*) cp -v $cfg ${cfg}.orig; break;;
+	esac
+done < $cfg
+
+printf "\033[0;32m(ii)\033[0m init wpa supplicant\n\n"
+
+cat > $cfg << EOF
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=root
+EOF
+
+rc-service wpa_supplicant restart
+
+printf "\n\033[0;32m(**)\033[0m now can use fwm wifi tools for managing wireless networks\n"
